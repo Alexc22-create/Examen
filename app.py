@@ -58,9 +58,79 @@ from flask import Flask, jsonify, render_template_string, request, redirect, url
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def test():
-   return "Hola mundo" 
+dispositivos = {}
+
+@app.route('/dispositivos_html', methods=['GET'])
+def mostrar_dispositivos_html():
+    html = ""
+    for id, d in dispositivos.items():
+        html += f"""
+        <div class="dispositivo">
+            <strong>ID : {id}</strong><br>
+            <b>Nombre:</b> {d['nombre']}<br>
+            <b>Descripción:</b> {d['descripcion']}<br>
+            <b>IP:</b> {d['ip']}<br>
+            <b>MAC:</b> {d['mac']}<br>
+            <b>Ubicación:</b> {d['ubicacion']}<br>
+            <b>Tipo:</b> {d['tipo']}<br>
+            <b>Otros:</b> {d['otros']}
+        </div>
+        """
+    return render_template_string(f"""
+    <html>
+    <head>
+        <title>Dispositivos de Red</title>
+        <style>
+            .dispositivo {{
+                border: 1px solid #ccc;
+                padding: 10px;
+                margin: 10px;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Lista de Dispositivos</h1>
+        {html}
+    </body>
+    </html>
+    """)
+    return html
+
+@app.route('/dispositivos', methods=['POST'])
+def agregar_dispositivo():
+    data=request.get_json()
+    nuevo_dispositivo= {data['id']: {
+        "nombre": data['nombre'],
+        "descripcion": data['descripcion'],
+        "ip": data['ip'],
+        "mac": data['mac'],
+        "ubicacion": data['ubicacion'],
+        "tipo": data['tipo'],
+        "otros": data['otros']
+    }}
+    
+    dispositivos.update(nuevo_dispositivo)
+    return jsonify({"mensaje": "Dispositivo agregado exitosamente"})
+
+@app.route('/dispositivos_mod', methods=['PUT'])
+def modificar_dispositivo():
+    data=request.get_json()
+    id = data.get('id')
+    if id not in dispositivos:
+        return jsonify({"error": "Dispositivo no encontrado"})
+    
+    dispositivos[id].update({
+        'nombre': data.get('nombre', dispositivos[id]['nombre']),
+        'descripcion': data.get('descripcion', dispositivos[id]['descripcion']),
+        'ip': data.get('ip', dispositivos[id]['ip']),
+        'mac': data.get('mac', dispositivos[id]['mac']),
+        'ubicacion': data.get('ubicacion', dispositivos[id]['ubicacion']),
+        'tipo': data.get('tipo', dispositivos[id]['tipo']),
+        'otros': data.get('otros', dispositivos[id]['otros']),
+    })
+    
+    return jsonify({"mensaje": "Dispositivo modificado exitosamente"})
+    
    
 if __name__ == '__main__':
     app.run(debug=True)
