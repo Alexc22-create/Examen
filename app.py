@@ -96,6 +96,22 @@ def mostrar_dispositivos_html():
     """)
     return html
 
+@app.route('/dispositivos', methods=['POST'])
+def agregar_dispositivo():
+    data=request.get_json()
+    nuevo_dispositivo= {data['id']: {
+        "nombre": data['nombre'],
+        "descripcion": data['descripcion'],
+        "ip": data['ip'],
+        "mac": data['mac'],
+        "ubicacion": data['ubicacion'],
+        "tipo": data['tipo'],
+        "otros": data['otros']
+    }}
+    
+    dispositivos.update(nuevo_dispositivo)
+    return jsonify(nuevo_dispositivo)
+    
     
    
 if __name__ == '__main__':
