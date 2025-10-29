@@ -110,8 +110,26 @@ def agregar_dispositivo():
     }}
     
     dispositivos.update(nuevo_dispositivo)
-    return jsonify(nuevo_dispositivo)
+    return jsonify({"mensaje": "Dispositivo agregado exitosamente"})
+
+@app.route('/dispositivos_mod', methods=['PUT'])
+def modificar_dispositivo():
+    data=request.get_json()
+    id = data.get('id')
+    if id not in dispositivos:
+        return jsonify({"error": "Dispositivo no encontrado"})
     
+    dispositivos[id].update({
+        'nombre': data.get('nombre', dispositivos[id]['nombre']),
+        'descripcion': data.get('descripcion', dispositivos[id]['descripcion']),
+        'ip': data.get('ip', dispositivos[id]['ip']),
+        'mac': data.get('mac', dispositivos[id]['mac']),
+        'ubicacion': data.get('ubicacion', dispositivos[id]['ubicacion']),
+        'tipo': data.get('tipo', dispositivos[id]['tipo']),
+        'otros': data.get('otros', dispositivos[id]['otros']),
+    })
+    
+    return jsonify({"mensaje": "Dispositivo modificado exitosamente"})
     
    
 if __name__ == '__main__':
